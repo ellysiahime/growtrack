@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GrowTrack 🧠📊
 
-## Getting Started
+**GrowTrack** is a private full-stack web app designed to help parents track their child’s academic progress, exam schedules, and subject performance across multiple school terms and years.
 
-First, run the development server:
+Built with:
+- ⚡️ [Next.js](https://nextjs.org/)
+- 🛠 [Supabase](https://supabase.com/)
+- 💬 [Supabase Auth UI]
+- 🎨 Tailwind CSS
+- 💻 Built & developed in [Cursor](https://www.cursor.sh/) with AI assistance
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Features (MVP)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+✅ Subject Manager  
+✅ Add/view list of school subjects  
+✅ Connected to Supabase database with RLS (Row Level Security)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+✅ Exam Calendar *(WIP)*  
+- Define exam periods (Term 1/2/3, Midterm/Final) with dates  
+- Add subject-specific exam schedules within each period
 
-## Learn More
+✅ Score Tracker *(Coming Soon)*  
+- Record marks per subject  
+- View average scores and bar charts by term, year, or subject  
 
-To learn more about Next.js, take a look at the following resources:
+✅ Authentication  
+- Supabase Auth with role-based access:  
+  - **Owner (ellysiahime)**: full access  
+  - Others (e.g. child, spouse): read-only  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📈 Future Roadmap
 
-## Deploy on Vercel
+📅 Visual calendar with subject-level exam schedule
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+📊 Score charts by subject/year/term
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+📝 Diary & allowance tracker (Phase 2)
+
+---
