@@ -1,21 +1,73 @@
-import { ChartBarIcon, CalendarIcon, AcademicCapIcon, BookOpenIcon } from "@heroicons/react/24/outline";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import './styles/calendar.css';
+import { BookOpenIcon, AcademicCapIcon, ChartBarIcon } from '@heroicons/react/24/solid';
+
+interface ExamPeriod {
+  id: string;
+  year: number;
+  class: string;
+  term: string;
+  exam_type: string;
+  start_date: string;
+  end_date: string;
+  homeroom_teacher: string;
+  cgpa: number;
+}
 
 export default function Home() {
-  // Dummy data for demonstration
-  const recentScores = [
-    { subject: "Math", score: 85, date: "2024-01-15" },
-    { subject: "English", score: 92, date: "2024-01-10" },
-    { subject: "Science", score: 78, date: "2024-01-08" },
-    { subject: "History", score: 88, date: "2024-01-05" },
-  ];
+  const [examPeriods, setExamPeriods] = useState<ExamPeriod[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const upcomingExams = [
-    { subject: "Math", date: "2024-01-20", type: "Midterm" },
-    { subject: "English", date: "2024-01-25", type: "Quiz" },
-    { subject: "Science", date: "2024-01-30", type: "Final" },
-  ];
+  useEffect(() => {
+    fetchExamPeriods();
+  }, []);
 
-  const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const fetchExamPeriods = async () => {
+    const { data, error } = await supabase
+      .from('exam_periods')
+      .select('*')
+      .order('start_date', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching exam periods:', error);
+    } else {
+      setExamPeriods(data || []);
+    }
+    setLoading(false);
+  };
+
+  // Function to get exam details for a specific date
+  const getExamType = (date: Date) => {
+    const dateToCheck = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    for (const exam of examPeriods) {
+      const startDate = new Date(exam.start_date);
+      const examStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+      const endDate = new Date(exam.end_date);
+      const examEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+      
+      if (dateToCheck >= examStartDate && dateToCheck <= examEndDate) {
+        return exam.exam_type;
+      }
+    }
+    return null;
+  };
+
+  // Custom tile className
+  const tileClassName = ({ date, view }: { date: Date; view: string }) => {
+    if (view === 'month') {
+      const examType = getExamType(date);
+      if (examType === 'Midterm') {
+        return 'midterm-date';
+      } else if (examType === 'Final') {
+        return 'final-date';
+      }
+    }
+    return '';
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-pink-100 p-4 sm:p-6">
@@ -23,128 +75,68 @@ export default function Home() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-pink-600 drop-shadow-lg tracking-wide mb-2">
-            🧠📊 Dashboard
+            🧠 GrowTrack
           </h1>
-          <p className="text-pink-700 text-lg">Welcome back! Here's your academic overview.</p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
-            <div className="flex items-center gap-3">
-              <div className="bg-pink-100 p-3 rounded-full">
-                <BookOpenIcon className="w-6 h-6 text-pink-600" />
-              </div>
-              <div>
-                <p className="text-sm text-pink-600 font-semibold">Total Subjects</p>
-                <p className="text-2xl font-bold text-pink-700">6</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
-            <div className="flex items-center gap-3">
-              <div className="bg-green-100 p-3 rounded-full">
-                <AcademicCapIcon className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-green-600 font-semibold">Average Score</p>
-                <p className="text-2xl font-bold text-green-700">85.8%</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-100 p-3 rounded-full">
-                <CalendarIcon className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-blue-600 font-semibold">Upcoming Exams</p>
-                <p className="text-2xl font-bold text-blue-700">3</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
-            <div className="flex items-center gap-3">
-              <div className="bg-yellow-100 p-3 rounded-full">
-                <ChartBarIcon className="w-6 h-6 text-yellow-600" />
-              </div>
-              <div>
-                <p className="text-sm text-yellow-600 font-semibold">This Month</p>
-                <p className="text-2xl font-bold text-yellow-700">12</p>
-              </div>
-            </div>
-          </div>
+          <p className="text-gray-700 text-lg">Track your academic journey</p>
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Chart Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Score Chart Section */}
           <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
-            <h2 className="text-xl font-bold text-pink-700 mb-4 flex items-center gap-2">
-              <ChartBarIcon className="w-6 h-6" />
-              Recent Scores
-            </h2>
-            <div className="space-y-4">
-              {recentScores.map((score, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-pink-50 rounded-2xl">
-                  <div>
-                    <p className="font-semibold text-pink-700">{score.subject}</p>
-                    <p className="text-sm text-pink-600">{score.date}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-pink-600">{score.score}%</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 p-4 bg-pink-50 rounded-2xl text-center">
-              <p className="text-pink-600 font-semibold">📊 Chart visualization coming soon!</p>
+            <h2 className="text-xl font-bold text-pink-700 mb-4">Score Overview</h2>
+            <div className="aspect-[4/3] bg-gray-50 rounded-2xl border-2 border-dashed border-pink-100 flex items-center justify-center">
+              <div className="text-center p-6">
+                <ChartBarIcon className="w-12 h-12 text-pink-200 mx-auto mb-2" />
+                <p className="text-gray-500 font-medium">Score chart coming soon!</p>
+                <p className="text-gray-400 text-sm">Track your progress over time</p>
+              </div>
             </div>
           </div>
 
           {/* Calendar Section */}
           <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
-            <h2 className="text-xl font-bold text-pink-700 mb-4 flex items-center gap-2">
-              <CalendarIcon className="w-6 h-6" />
-              Upcoming Exams - {currentMonth}
-            </h2>
-            <div className="space-y-4">
-              {upcomingExams.map((exam, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-pink-50 rounded-2xl">
-                  <div>
-                    <p className="font-semibold text-pink-700">{exam.subject}</p>
-                    <p className="text-sm text-pink-600">{exam.type}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-pink-600">{exam.date}</p>
-                  </div>
-                </div>
-              ))}
+            <h2 className="text-xl font-bold text-pink-700 mb-4">Exam Calendar</h2>
+            <div className="calendar-container">
+              <Calendar
+                className="rounded-2xl border-2 border-pink-100 p-4"
+                tileClassName={tileClassName}
+                tileDisabled={({ date, view }) => view === 'month'}
+              />
             </div>
-            <div className="mt-6 p-4 bg-pink-50 rounded-2xl text-center">
-              <p className="text-pink-600 font-semibold">📅 Calendar widget coming soon!</p>
+            {/* Legend */}
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 bg-sky-100" />
+                <span className="text-sm text-gray-600">Midterm</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 bg-purple-100" />
+                <span className="text-sm text-gray-600">Final</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 bg-pink-100" />
+                <span className="text-sm text-gray-600">Today</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="mt-8 bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
+        <div className="mt-6 bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
           <h2 className="text-xl font-bold text-pink-700 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <button className="flex items-center gap-3 p-4 bg-pink-100 hover:bg-pink-200 rounded-2xl transition-all duration-200">
               <BookOpenIcon className="w-6 h-6 text-pink-600" />
               <span className="font-semibold text-pink-700">Manage Subjects</span>
             </button>
-            <button className="flex items-center gap-3 p-4 bg-green-100 hover:bg-green-200 rounded-2xl transition-all duration-200">
-              <AcademicCapIcon className="w-6 h-6 text-green-600" />
-              <span className="font-semibold text-green-700">Add Exam</span>
+            <button className="flex items-center gap-3 p-4 bg-sky-100 hover:bg-sky-200 rounded-2xl transition-all duration-200">
+              <AcademicCapIcon className="w-6 h-6 text-sky-600" />
+              <span className="font-semibold text-sky-700">Add Exam</span>
             </button>
-            <button className="flex items-center gap-3 p-4 bg-blue-100 hover:bg-blue-200 rounded-2xl transition-all duration-200">
-              <ChartBarIcon className="w-6 h-6 text-blue-600" />
-              <span className="font-semibold text-blue-700">View Scores</span>
+            <button className="flex items-center gap-3 p-4 bg-purple-100 hover:bg-purple-200 rounded-2xl transition-all duration-200">
+              <ChartBarIcon className="w-6 h-6 text-purple-600" />
+              <span className="font-semibold text-purple-700">View Scores</span>
             </button>
           </div>
         </div>

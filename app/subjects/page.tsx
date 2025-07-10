@@ -11,6 +11,10 @@ export default function SubjectsPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [isOwner, setIsOwner] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [subjectToDelete, setSubjectToDelete] = useState<any>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const OWNER_UID = process.env.NEXT_PUBLIC_OWNER_UID;
 
@@ -95,119 +99,252 @@ export default function SubjectsPage() {
   };
 
   // Delete subject
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this subject?")) return;
-    setLoading(true);
-    setError("");
+  const openDeleteModal = (subject: any) => {
+    setSubjectToDelete(subject);
+    setShowDeleteModal(true);
+    setDeleteError("");
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setSubjectToDelete(null);
+    setDeleteError("");
+  };
+
+  const handleDelete = async () => {
+    if (!subjectToDelete) return;
+    
+    setDeleteLoading(true);
+    setDeleteError("");
     const { error } = await supabase
       .from("subjects")
       .delete()
-      .eq("id", id);
+      .eq("id", subjectToDelete.id);
+    
     if (error) {
-      setError("Failed to delete subject.");
-    } else {
-      fetchSubjects();
+      setDeleteError("Failed to delete subject.");
+      setDeleteLoading(false);
+      return;
     }
-    setLoading(false);
+
+    setDeleteLoading(false);
+    closeDeleteModal();
+    fetchSubjects();
+  };
+
+  const getSubjectIcon = (subjectName: string) => {
+    const name = subjectName.toLowerCase();
+    if (name.includes('math') || name.includes('mathematics')) return '📐';
+    if (name.includes('english') || name.includes('language')) return '📖';
+    if (name.includes('science')) return '🔬';
+    if (name.includes('history')) return '📜';
+    if (name.includes('geography')) return '🌍';
+    if (name.includes('art') || name.includes('drawing')) return '🎨';
+    if (name.includes('music')) return '🎵';
+    if (name.includes('physical') || name.includes('pe') || name.includes('sport')) return '⚽';
+    if (name.includes('computer') || name.includes('it') || name.includes('technology')) return '💻';
+    if (name.includes('chemistry')) return '🧪';
+    if (name.includes('physics')) return '⚡';
+    if (name.includes('biology')) return '🧬';
+    if (name.includes('economics')) return '💰';
+    if (name.includes('literature')) return '📚';
+    if (name.includes('philosophy')) return '🤔';
+    if (name.includes('psychology')) return '🧠';
+    if (name.includes('sociology')) return '👥';
+    if (name.includes('chinese') || name.includes('bahasa') || name.includes('spanish') || name.includes('french')) return '🗣️';
+    return '📝'; // default icon
   };
 
   return (
-    <div className="max-w-xl w-full mx-auto py-6 px-2 sm:py-10 sm:px-4">
-      <h1 className="text-3xl sm:text-4xl font-extrabold mb-6 sm:mb-8 text-center text-pink-600 drop-shadow-lg tracking-wide">🎓 Subjects</h1>
-      {isOwner && (
-        <form
-          onSubmit={handleAddSubject}
-          className="flex flex-col sm:flex-row gap-2 mb-6 sm:mb-8 justify-center w-full"
-        >
-          <input
-            type="text"
-            value={newSubject}
-            onChange={(e) => setNewSubject(e.target.value)}
-            placeholder="Add new subject"
-            className="border-2 border-pink-300 rounded-full px-4 py-2 w-full sm:flex-1 focus:outline-none focus:ring-4 focus:ring-pink-200 text-base sm:text-lg bg-pink-50 font-medium transition-all duration-200"
-            disabled={loading || !isOwner}
-          />
-          <button
-            type="submit"
-            className="bg-pink-500 text-white px-4 sm:px-6 py-2 rounded-full font-bold text-base sm:text-lg shadow hover:bg-pink-600 disabled:opacity-50 transition-all duration-200 w-full sm:w-auto"
-            disabled={loading || !newSubject.trim()}
-          >
-            Add
-          </button>
-        </form>
-      )}
-      {error && (
-        <div className="text-red-600 mb-4 text-center font-bold text-sm sm:text-base">{error}</div>
-      )}
-      <div className="bg-white shadow-xl rounded-3xl p-3 sm:p-6 border-2 border-pink-100">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-pink-100 p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-pink-600 drop-shadow-lg tracking-wide mb-2">
+            🎓 Subjects
+          </h1>
+          <p className="text-gray-700 text-lg">Manage and organize your academic subjects</p>
+        </div>
+
+        {error && (
+          <div className="bg-red-100 border-2 border-red-300 rounded-3xl p-4 mb-6">
+            <p className="text-red-700 font-semibold text-center">{error}</p>
+          </div>
+        )}
+
+        {isOwner && (
+          <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100 mb-8">
+            <h2 className="text-xl font-bold text-pink-700 mb-4">Add New Subject</h2>
+            <form
+              onSubmit={handleAddSubject}
+              className="flex flex-col sm:flex-row gap-2 justify-center w-full"
+            >
+              <input
+                type="text"
+                value={newSubject}
+                onChange={(e) => setNewSubject(e.target.value)}
+                placeholder="Enter subject name"
+                className="border-2 border-pink-300 rounded-full px-4 py-2 w-full sm:flex-1 focus:outline-none focus:ring-4 focus:ring-pink-200 text-base sm:text-lg bg-pink-50 font-medium transition-all duration-200"
+                disabled={loading || !isOwner}
+              />
+              <button
+                type="submit"
+                className="bg-pink-500 text-white px-4 sm:px-6 py-2 rounded-full font-bold text-base sm:text-lg shadow hover:bg-pink-600 disabled:opacity-50 transition-all duration-200 w-full sm:w-auto cursor-pointer"
+                disabled={loading || !newSubject.trim()}
+              >
+                Add Subject
+              </button>
+            </form>
+          </div>
+        )}
+
         {loading ? (
-          <div className="text-center text-pink-400 font-bold">Loading...</div>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-gray-600 font-bold text-xl">Loading subjects...</div>
+          </div>
         ) : subjects.length === 0 ? (
-          <div className="text-center text-pink-300 font-semibold">No subjects found.</div>
+          <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-pink-100 text-center">
+            <div className="text-6xl mb-4">📚</div>
+            <h2 className="text-2xl font-bold text-pink-700 mb-2">No Subjects Found</h2>
+            <p className="text-gray-600">Start by adding your first subject.</p>
+          </div>
         ) : (
-          <ul className="divide-y divide-pink-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {subjects
               .slice()
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((subject: any) => (
-                <li key={subject.id} className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 py-2 sm:py-3 px-1 sm:px-2 group hover:bg-pink-50 rounded-2xl transition-all duration-150">
-                  {editId === subject.id ? (
-                    <>
-                      <input
-                        type="text"
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        className="border-2 border-pink-300 rounded-full px-3 py-1 text-base sm:text-lg flex-1 focus:outline-none focus:ring-2 focus:ring-pink-200 bg-pink-50 font-medium"
-                        autoFocus
-                        disabled={!isOwner}
-                      />
-                      {isOwner && (
-                        <div className="flex gap-2 mt-2 sm:mt-0">
-                          <button
-                            onClick={handleEditSave}
-                            className="bg-green-400 hover:bg-green-500 text-white rounded-full p-2 transition-all duration-150"
-                            title="Save"
-                          >
-                            <CheckIcon className="w-5 h-5" />
-                          </button>
-                          <button
-                            onClick={handleEditCancel}
-                            className="bg-gray-300 hover:bg-gray-400 text-white rounded-full p-2 transition-all duration-150"
-                            title="Cancel"
-                          >
-                            <XMarkIcon className="w-5 h-5" />
-                          </button>
-                        </div>
+                <div
+                  key={subject.id}
+                  className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100 hover:shadow-2xl transition-all duration-300"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      {editId === subject.id ? (
+                        <input
+                          type="text"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="font-bold text-pink-700 bg-white border-2 border-pink-300 rounded-full px-3 py-1 text-lg focus:outline-none focus:ring-2 focus:ring-pink-200 transition-all duration-200"
+                          autoFocus
+                          disabled={!isOwner}
+                          style={{ minWidth: '100px', maxWidth: '140px' }}
+                        />
+                      ) : (
+                        <span className="font-bold text-pink-700">{subject.name}</span>
                       )}
-                    </>
-                  ) : (
-                    <>
-                      <span className="flex-1 text-base sm:text-lg font-semibold text-pink-700 text-center sm:text-left">{subject.name}</span>
-                      {isOwner && (
-                        <div className="flex gap-2 mt-2 sm:mt-0">
-                          <button
-                            onClick={() => handleEdit(subject)}
-                            className="bg-yellow-300 hover:bg-yellow-400 text-yellow-900 rounded-full p-2 transition-all duration-150"
-                            title="Edit"
-                          >
-                            <PencilIcon className="w-5 h-5" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(subject.id)}
-                            className="bg-red-400 hover:bg-red-500 text-white rounded-full p-2 transition-all duration-150"
-                            title="Delete"
-                          >
-                            <TrashIcon className="w-5 h-5" />
-                          </button>
+                    </div>
+                    {isOwner && (
+                      <div className="flex gap-2 ml-2">
+                        {editId === subject.id ? (
+                          <>
+                            <button
+                              onClick={handleEditSave}
+                              className="bg-green-400 hover:bg-green-500 text-white rounded-full p-2 transition-all duration-150 cursor-pointer"
+                              title="Save"
+                            >
+                              <CheckIcon className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={handleEditCancel}
+                              className="bg-gray-300 hover:bg-gray-400 text-white rounded-full p-2 transition-all duration-150 cursor-pointer"
+                              title="Cancel"
+                            >
+                              <XMarkIcon className="w-4 h-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleEdit(subject)}
+                              className="ml-2 bg-yellow-300 hover:bg-yellow-400 text-yellow-900 rounded-full p-2 transition-all duration-150 cursor-pointer"
+                              title="Edit Subject"
+                            >
+                              <PencilIcon className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => openDeleteModal(subject)}
+                              className="ml-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-full p-2 transition-all duration-150 cursor-pointer"
+                              title="Delete Subject"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="pt-3 border-t border-pink-100">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="text-3xl mb-1">{getSubjectIcon(subject.name)}</div>
                         </div>
-                      )}
-                    </>
-                  )}
-                </li>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Edit Mode */}
+                  {/* No extra edit mode controls below */}
+                </div>
               ))}
-          </ul>
+          </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          onClick={closeDeleteModal} // Close modal when clicking outside
+        >
+          <div 
+            className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative"
+            onClick={(e) => e.stopPropagation()} // Prevent clicks inside modal from closing it
+          >
+            <button
+              onClick={closeDeleteModal}
+              className="absolute top-4 right-4 text-pink-500 hover:text-pink-700 text-2xl font-bold"
+              aria-label="Close"
+            >
+              <XMarkIcon className="w-7 h-7" />
+            </button>
+
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-red-600">Delete Subject</h2>
+            </div>
+            <div className="space-y-4">
+              <div className="bg-red-50 rounded-2xl p-4">
+                <p className="text-red-700 font-medium">Are you sure you want to delete this subject?</p>
+                <div className="mt-2 text-sm text-gray-600">
+                  <p className="mt-1 text-lg font-semibold">{subjectToDelete.name}</p>
+                  <p className="mt-1 text-3xl">{getSubjectIcon(subjectToDelete.name)}</p>
+                </div>
+              </div>
+              <div className="flex gap-4 justify-end">
+                <button
+                  type="button"
+                  onClick={closeDeleteModal}
+                  className="bg-gray-300 hover:bg-gray-400 text-white rounded-full px-6 py-2 font-bold transition-all duration-200"
+                  disabled={deleteLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="bg-red-500 hover:bg-red-600 text-white rounded-full px-6 py-2 font-bold transition-all duration-200"
+                  disabled={deleteLoading}
+                >
+                  {deleteLoading ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+              {deleteError && <div className="text-red-600 text-center font-bold text-sm mt-4">{deleteError}</div>}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

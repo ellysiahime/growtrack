@@ -1,0 +1,127 @@
+/* Calendar Container */
+.calendar-container .react-calendar {
+  width: 100%;
+  max-width: 100%;
+  background: white;
+  font-family: inherit;
+  line-height: 1.125em;
+}
+
+/* Navigation */
+.react-calendar__navigation {
+  margin-bottom: 1em;
+}
+
+.react-calendar__navigation button {
+  min-width: 44px;
+  background: none;
+  font-size: 16px;
+  color: #4B5563;
+  cursor: pointer;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: #FDF2F8;
+  border-radius: 0.5rem;
+}
+
+.react-calendar__navigation button[disabled] {
+  background-color: transparent;
+  cursor: default;
+}
+
+/* Month View */
+.react-calendar__month-view__weekdays {
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.75em;
+  color: #EC4899;
+}
+
+.react-calendar__month-view__days__day {
+  padding: 0.75em 0;
+  color: #4B5563;
+  cursor: default;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: #EC4899 !important;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #9CA3AF !important;
+}
+
+/* Tiles */
+.react-calendar__tile {
+  max-width: 100%;
+  padding: 0.75em 0.5em;
+  background: none;
+  text-align: center;
+  line-height: 16px;
+  font-size: 0.875em;
+  border-radius: 0.5rem;
+  cursor: default;
+}
+
+.react-calendar__tile:disabled {
+  background: none;
+  cursor: default;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background: none;
+}
+
+/* Today's date */
+.react-calendar__tile--now {
+  background: #FDF2F8 !important;
+  color: #EC4899 !important;
+  font-weight: bold;
+}
+
+/* Exam dates */
+.react-calendar__tile.midterm-date {
+  background: #E0F2FE;
+  color: #0369A1;
+  font-weight: 600;
+}
+
+.react-calendar__tile.final-date {
+  background: #F3E8FF;
+  color: #7E22CE;
+  font-weight: 600;
+}
+
+/* Today's date that is also an exam date */
+.react-calendar__tile--now.midterm-date,
+.react-calendar__tile--now.final-date {
+  position: relative;
+}
+
+.react-calendar__tile--now.midterm-date::after,
+.react-calendar__tile--now.final-date::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: #EC4899;
+  border-radius: 50%;
+}
+
+/* Make calendar responsive */
+@media (max-width: 640px) {
+  .react-calendar {
+    font-size: 14px;
+  }
+  
+  .react-calendar__tile {
+    padding: 0.5em 0.25em;
+  }
+} 
