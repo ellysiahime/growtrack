@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Fredoka } from "next/font/google";
 import "./globals.css";
-import LogoutButton from "./components/LogoutButton";
+import Sidebar from "./components/Sidebar";
 
 const fredoka = Fredoka({
   variable: "--font-fredoka",
@@ -21,8 +21,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${fredoka.variable} antialiased`}>
-        <LogoutButton />
-        {children}
+        <Sidebar />
+        <div className="ml-0 lg:ml-64">
+          {children}
+        </div>
       </body>
     </html>
   );
