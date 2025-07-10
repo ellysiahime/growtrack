@@ -54,8 +54,8 @@ export default function Sidebar() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="p-6 border-b-2 border-pink-100 flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold text-pink-600 text-center w-full">
-          🧠📊 GrowTrack
+        <h1 className="text-2xl font-extrabold text-pink-600 w-full">
+        📊 GrowTrack
         </h1>
         {/* Close button for mobile */}
         <button

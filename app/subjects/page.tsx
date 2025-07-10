@@ -2,9 +2,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { Subject } from "@/types/exam";
 
 export default function SubjectsPage() {
-  const [subjects, setSubjects] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [newSubject, setNewSubject] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -12,7 +13,7 @@ export default function SubjectsPage() {
   const [editValue, setEditValue] = useState("");
   const [isOwner, setIsOwner] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [subjectToDelete, setSubjectToDelete] = useState<any>(null);
+  const [subjectToDelete, setSubjectToDelete] = useState<Subject | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
@@ -70,7 +71,7 @@ export default function SubjectsPage() {
   };
 
   // Edit subject
-  const handleEdit = (subject: any) => {
+  const handleEdit = (subject: Subject) => {
     setEditId(subject.id);
     setEditValue(subject.name);
   };
@@ -99,7 +100,7 @@ export default function SubjectsPage() {
   };
 
   // Delete subject
-  const openDeleteModal = (subject: any) => {
+  const openDeleteModal = (subject: Subject) => {
     setSubjectToDelete(subject);
     setShowDeleteModal(true);
     setDeleteError("");
@@ -163,7 +164,7 @@ export default function SubjectsPage() {
           <h1 className="text-3xl sm:text-4xl font-extrabold text-pink-600 drop-shadow-lg tracking-wide mb-2">
             🎓 Subjects
           </h1>
-          <p className="text-gray-700 text-lg">Manage and organize your academic subjects</p>
+          <p className="text-gray-700 text-lg">Organize Subjects</p>
         </div>
 
         {error && (
@@ -213,7 +214,7 @@ export default function SubjectsPage() {
             {subjects
               .slice()
               .sort((a, b) => a.name.localeCompare(b.name))
-              .map((subject: any) => (
+              .map((subject: Subject) => (
                 <div
                   key={subject.id}
                   className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100 hover:shadow-2xl transition-all duration-300"
@@ -318,8 +319,8 @@ export default function SubjectsPage() {
               <div className="bg-red-50 rounded-2xl p-4">
                 <p className="text-red-700 font-medium">Are you sure you want to delete this subject?</p>
                 <div className="mt-2 text-sm text-gray-600">
-                  <p className="mt-1 text-lg font-semibold">{subjectToDelete.name}</p>
-                  <p className="mt-1 text-3xl">{getSubjectIcon(subjectToDelete.name)}</p>
+                  <p className="mt-1 text-lg font-semibold">{subjectToDelete?.name}</p>
+                  <p className="mt-1 text-3xl">{getSubjectIcon(subjectToDelete?.name || '')}</p>
                 </div>
               </div>
               <div className="flex gap-4 justify-end">

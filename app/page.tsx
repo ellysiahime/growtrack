@@ -5,18 +5,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './styles/calendar.css';
 import { BookOpenIcon, AcademicCapIcon, ChartBarIcon } from '@heroicons/react/24/solid';
-
-interface ExamPeriod {
-  id: string;
-  year: number;
-  class: string;
-  term: string;
-  exam_type: string;
-  start_date: string;
-  end_date: string;
-  homeroom_teacher: string;
-  cgpa: number;
-}
+import { ExamPeriod } from '@/types/exam';
 
 export default function Home() {
   const [examPeriods, setExamPeriods] = useState<ExamPeriod[]>([]);
@@ -75,9 +64,9 @@ export default function Home() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-pink-600 drop-shadow-lg tracking-wide mb-2">
-            🧠 GrowTrack
+            📊 GrowTrack
           </h1>
-          <p className="text-gray-700 text-lg">Track your academic journey</p>
+          <p className="text-gray-700 text-lg">Overall Dashboard</p>
         </div>
 
         {/* Main Content Grid */}
