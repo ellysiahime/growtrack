@@ -5,14 +5,18 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './styles/calendar.css';
 import { BookOpenIcon, AcademicCapIcon, ChartBarIcon } from '@heroicons/react/24/solid';
-import { ExamPeriod } from '@/types/exam';
+import { ExamPeriod, ExamSubject } from '@/types/exam';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [examPeriods, setExamPeriods] = useState<ExamPeriod[]>([]);
+  const [examSubjects, setExamSubjects] = useState<ExamSubject[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     fetchExamPeriods();
+    fetchExamSubjects();
   }, []);
 
   const fetchExamPeriods = async () => {
@@ -27,6 +31,22 @@ export default function Home() {
       setExamPeriods(data || []);
     }
     setLoading(false);
+  };
+
+  const fetchExamSubjects = async () => {
+    const { data, error } = await supabase
+      .from('exam_subjects')
+      .select(`
+        *,
+        subject:subjects(name)
+      `)
+      .order('exam_date', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching exam subjects:', error);
+    } else {
+      setExamSubjects(data || []);
+    }
   };
 
   // Function to get exam details for a specific date
@@ -45,17 +65,91 @@ export default function Home() {
     return null;
   };
 
+  // Function to get exam subjects for a specific date
+  const getExamSubjects = (date: Date) => {
+    const dateToCheck = date.toISOString().split('T')[0];
+    return examSubjects.filter(subject => subject.exam_date === dateToCheck);
+  };
+
+  // Helper to format date as YYYY-MM-DD in local time
+  function formatLocalDate(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Function to get the exam period for a specific date
+  const getExamPeriodForDate = (date: Date) => {
+    const dateStr = formatLocalDate(date);
+    for (const exam of examPeriods) {
+      const startStr = formatLocalDate(new Date(exam.start_date));
+      const endStr = formatLocalDate(new Date(exam.end_date));
+      if (dateStr >= startStr && dateStr <= endStr) {
+        return exam;
+      }
+    }
+    return null;
+  };
+
+  // Handle click on calendar day
+  const handleDayClick = (date: Date) => {
+    console.log('Clicked date:', date);
+    const exam = getExamPeriodForDate(date);
+    console.log('Exam found:', exam);
+    if (exam) {
+      router.push(`/exam/${exam.id}`);
+    }
+  };
+
   // Custom tile className
   const tileClassName = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
       const examType = getExamType(date);
+      const subjects = getExamSubjects(date);
+      const classes = [];
+
       if (examType === 'Midterm') {
-        return 'midterm-date';
+        classes.push('midterm-date');
       } else if (examType === 'Final') {
-        return 'final-date';
+        classes.push('final-date');
       }
+
+      if (subjects.length > 0) {
+        classes.push('has-subjects');
+      }
+
+      // Add clickable class if this date is in an exam period
+      const exam = getExamPeriodForDate(date);
+      if (exam) {
+        classes.push('exam-clickable');
+      }
+
+      return classes.join(' ');
     }
     return '';
+  };
+
+  // Custom tile content
+  const tileContent = ({ date, view }: { date: Date; view: string }) => {
+    if (view === 'month') {
+      const subjects = getExamSubjects(date);
+      if (subjects.length > 0) {
+        return (
+          <div className="subjects-list">
+            {subjects.slice(0, 2).map((subject, index) => (
+              <div key={subject.id} className="subject-item">
+                {subject.subject?.name}
+              </div>
+            ))}
+            {subjects.length > 2 && (
+              <div className="subject-item more">+{subjects.length - 2} more</div>
+            )}
+          </div>
+        );
+      }
+    }
+    return null;
   };
 
   return (
@@ -90,7 +184,8 @@ export default function Home() {
               <Calendar
                 className="rounded-2xl border-2 border-pink-100 p-4"
                 tileClassName={tileClassName}
-                tileDisabled={({ date, view }) => view === 'month'}
+                tileContent={tileContent}
+                onClickDay={handleDayClick}
               />
             </div>
             {/* Legend */}

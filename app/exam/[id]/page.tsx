@@ -3,7 +3,7 @@ import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { ExamPeriod, ExamSubject, ExamTypeColors } from '@/types/exam';
-import { CalendarIcon, UserIcon, ChartBarIcon, ArrowLeftIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { CalendarIcon, UserIcon, ChartBarIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { ClipboardDocumentCheckIcon, AcademicCapIcon } from '@heroicons/react/24/solid';
 
 export default function ExamDetailPage() {

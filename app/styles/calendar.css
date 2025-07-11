@@ -55,15 +55,25 @@
 }
 
 /* Tiles */
+/* Remove rounded corners for exam tiles */
 .react-calendar__tile {
   max-width: 100%;
-  padding: 0.75em 0.5em;
+  padding: 0.5em 0.25em;
   background: none;
   text-align: center;
   line-height: 16px;
   font-size: 0.875em;
-  border-radius: 0.5rem;
+  border-radius: 0; /* sharp corners */
   cursor: default;
+  min-height: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.react-calendar__tile abbr {
+  display: block;
+  margin-bottom: 0.25em;
 }
 
 .react-calendar__tile:disabled {
@@ -96,23 +106,51 @@
   font-weight: 600;
 }
 
-/* Today's date that is also an exam date */
-.react-calendar__tile--now.midterm-date,
-.react-calendar__tile--now.final-date {
-  position: relative;
+.react-calendar__tile.exam-clickable {
+  cursor: pointer;
+  transition: box-shadow 0.15s, background 0.15s;
+  box-shadow: 0 0 0 0 transparent;
 }
 
-.react-calendar__tile--now.midterm-date::after,
-.react-calendar__tile--now.final-date::after {
-  content: "";
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  background: #EC4899;
-  border-radius: 50%;
+.react-calendar__tile.exam-clickable:hover,
+.react-calendar__tile.exam-clickable:focus {
+  background: #ffe4f3 !important;
+  box-shadow: 0 2px 8px 0 rgba(236, 72, 153, 0.08);
+  z-index: 1;
+}
+
+/* Remove all rounded corner classes for exam periods */
+/* (midterm-single, midterm-start, midterm-end, midterm-middle, final-single, final-start, final-end, final-middle) */
+
+/* Subject list in calendar tiles */
+.subjects-list {
+  width: 100%;
+  font-size: 0.7em;
+  margin-top: 0.25em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+  padding: 0 0.25em;
+}
+
+.subject-item {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0.15em 0.3em;
+  border-radius: 0.25em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: normal;
+  text-align: left;
+  font-size: 0.85em;
+  line-height: 1.2;
+}
+
+.subject-item.more {
+  text-align: center;
+  font-size: 0.8em;
+  color: #6B7280;
+  background: none;
 }
 
 /* Make calendar responsive */
@@ -123,5 +161,10 @@
   
   .react-calendar__tile {
     padding: 0.5em 0.25em;
+    min-height: 40px;
+  }
+
+  .subjects-list {
+    font-size: 0.65em;
   }
 } 
