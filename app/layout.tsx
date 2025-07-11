@@ -20,6 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <link rel="icon" href="/favicon.ico" sizes="any" /> 
       <body className={`${fredoka.variable} antialiased`}>
         <Sidebar />
         <div className="ml-0 lg:ml-64">

@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { HomeIcon, AcademicCapIcon, ChartBarIcon, BookOpenIcon, ArrowRightStartOnRectangleIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from 'next/image';
 
 const OWNER_UID = process.env.NEXT_PUBLIC_OWNER_UID;
 
@@ -54,9 +55,10 @@ export default function Sidebar() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="p-6 border-b-2 border-pink-100 flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold text-pink-600 w-full">
-        📊 GrowTrack
-        </h1>
+        <div className="flex items-center gap-2">
+          <Image src="/growtrack_logo.png" alt="GrowTrack Logo" width={36} height={36} className="inline-block align-middle" />
+          <span className="text-2xl font-extrabold text-pink-600 tracking-wide">GrowTrack</span>
+        </div>
         {/* Close button for mobile */}
         <button
           className="lg:hidden absolute top-4 right-4 text-pink-600 hover:text-pink-800"

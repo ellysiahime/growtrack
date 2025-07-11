@@ -7,6 +7,7 @@ import './styles/calendar.css';
 import { BookOpenIcon, AcademicCapIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 import { ExamPeriod, ExamSubject } from '@/types/exam';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function Home() {
   const [examPeriods, setExamPeriods] = useState<ExamPeriod[]>([]);
@@ -158,8 +159,9 @@ export default function Home() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-pink-600 drop-shadow-lg tracking-wide mb-2">
-            📊 GrowTrack
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-pink-600 drop-shadow-lg tracking-wide mb-2 flex items-center gap-2">
+            <Image src="/growtrack_logo.png" alt="GrowTrack Logo" width={40} height={40} className="inline-block align-middle" />
+            GrowTrack
           </h1>
           <p className="text-gray-700 text-lg">Overall Dashboard</p>
         </div>
