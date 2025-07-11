@@ -15,6 +15,8 @@ export interface ExamSubject {
   exam_period_id: string;
   subject_id: string;
   exam_date: string;
+  teacher_name?: string;
+  score?: number;
   subject?: {
     id: string;
     name: string;

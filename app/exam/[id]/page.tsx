@@ -2,9 +2,10 @@
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import { ExamPeriod, ExamSubject, ExamTypeColors } from '@/types/exam';
+import { ExamPeriod, ExamSubject, ExamTypeColors, Subject } from '@/types/exam';
 import { CalendarIcon, UserIcon, ChartBarIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { ClipboardDocumentCheckIcon, AcademicCapIcon } from '@heroicons/react/24/solid';
+import { PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/solid';
 
 export default function ExamDetailPage() {
   const router = useRouter();
@@ -16,6 +17,20 @@ export default function ExamDetailPage() {
   const [error, setError] = React.useState('');
   const [isOwner, setIsOwner] = React.useState(false);
   const OWNER_UID = process.env.NEXT_PUBLIC_OWNER_UID;
+  const [subjects, setSubjects] = React.useState<Subject[]>([]);
+  const [showAddForm, setShowAddForm] = React.useState(false);
+  const [addSubjectId, setAddSubjectId] = React.useState('');
+  const [addTeacher, setAddTeacher] = React.useState('');
+  const [addExamDate, setAddExamDate] = React.useState('');
+  const [addScore, setAddScore] = React.useState('');
+  const [addLoading, setAddLoading] = React.useState(false);
+  const [addError, setAddError] = React.useState('');
+  const [editId, setEditId] = React.useState<string | null>(null);
+  const [editExamDate, setEditExamDate] = React.useState('');
+  const [editTeacher, setEditTeacher] = React.useState('');
+  const [editScore, setEditScore] = React.useState('');
+  const [editLoading, setEditLoading] = React.useState(false);
+  const [editError, setEditError] = React.useState('');
 
   React.useEffect(() => {
     const checkUser = async () => {
@@ -69,6 +84,18 @@ export default function ExamDetailPage() {
 
     fetchData();
   }, [examId]);
+
+  // Fetch subjects for dropdown
+  React.useEffect(() => {
+    const fetchSubjects = async () => {
+      const { data, error } = await supabase
+        .from('subjects')
+        .select('*')
+        .order('name', { ascending: true });
+      if (!error) setSubjects(data || []);
+    };
+    fetchSubjects();
+  }, []);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -131,6 +158,114 @@ export default function ExamDetailPage() {
       labelText: "text-purple-700",
       icon: AcademicCapIcon
     };
+  };
+
+  // Add subject handler
+  const handleAddSubject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddError('');
+    if (!addSubjectId) {
+      setAddError('Please select a subject.');
+      return;
+    }
+    setAddLoading(true);
+    const { error } = await supabase.from('exam_subjects').insert([
+      {
+        exam_period_id: examId,
+        subject_id: addSubjectId,
+        teacher_name: addTeacher || null,
+        exam_date: addExamDate || null,
+        score: addScore !== '' ? Number(addScore) : null,
+      },
+    ]);
+    setAddLoading(false);
+    if (error) {
+      setAddError('Failed to add subject.');
+    } else {
+      setShowAddForm(false);
+      setAddSubjectId('');
+      setAddTeacher('');
+      setAddExamDate('');
+      setAddScore('');
+      // Refresh subject schedule
+      const { data: subjectsData, error: subjectsError } = await supabase
+        .from('exam_subjects')
+        .select(`*, subject:subjects(id, name)`)
+        .eq('exam_period_id', examId)
+        .order('exam_date', { ascending: true });
+      setExamSubjects(subjectsData || []);
+    }
+  };
+
+  // Start editing a subject row
+  const handleEdit = (subject: ExamSubject) => {
+    setEditId(subject.id);
+    setEditExamDate(subject.exam_date || '');
+    setEditTeacher(subject.teacher_name || '');
+    setEditScore(subject.score !== null && subject.score !== undefined ? String(subject.score) : '');
+    setEditError('');
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setEditId(null);
+    setEditExamDate('');
+    setEditTeacher('');
+    setEditScore('');
+    setEditError('');
+  };
+
+  // Save edit
+  const handleSaveEdit = async (subjectId: string) => {
+    setEditLoading(true);
+    setEditError('');
+    const { error } = await supabase
+      .from('exam_subjects')
+      .update({
+        exam_date: editExamDate || null,
+        teacher_name: editTeacher || null,
+        score: editScore !== '' ? Number(editScore) : null,
+      })
+      .eq('id', subjectId);
+    setEditLoading(false);
+    if (error) {
+      setEditError('Failed to update.');
+    } else {
+      setEditId(null);
+      setEditExamDate('');
+      setEditTeacher('');
+      setEditScore('');
+      // Refresh subject schedule
+      const { data: subjectsData } = await supabase
+        .from('exam_subjects')
+        .select(`*, subject:subjects(id, name)`)
+        .eq('exam_period_id', examId)
+        .order('exam_date', { ascending: true });
+      setExamSubjects(subjectsData || []);
+    }
+  };
+
+  // Add delete handler for exam_subjects
+  const handleDeleteSubject = async (subjectId: string) => {
+    setEditLoading(true);
+    setEditError('');
+    const { error } = await supabase
+      .from('exam_subjects')
+      .delete()
+      .eq('id', subjectId);
+    setEditLoading(false);
+    if (error) {
+      setEditError('Failed to delete.');
+    } else {
+      setEditId(null);
+      // Refresh subject schedule
+      const { data: subjectsData } = await supabase
+        .from('exam_subjects')
+        .select(`*, subject:subjects(id, name)`)
+        .eq('exam_period_id', examId)
+        .order('exam_date', { ascending: true });
+      setExamSubjects(subjectsData || []);
+    }
   };
 
   if (loading) {
@@ -252,53 +387,175 @@ export default function ExamDetailPage() {
           {/* Right column - Subject Schedule */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-pink-700">Subject Schedule</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-pink-700">Subject Schedule</h2>
                 {isOwner && (
                   <button
-                    onClick={() => {/* TODO: Implement subject schedule management */}}
-                    className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-full font-semibold text-sm transition-all duration-200"
+                    className="bg-pink-500 text-white px-4 py-2 rounded-full font-bold hover:bg-pink-600 transition-all"
+                    onClick={() => setShowAddForm((v) => !v)}
                   >
-                    + Add Subject
+                    {showAddForm ? 'Cancel' : 'Add Subject'}
                   </button>
                 )}
               </div>
-
+              {showAddForm && (
+                <form onSubmit={handleAddSubject} className="mb-6 rounded-3xl p-6 flex flex-col gap-4 border-2 border-pink-200">
+                  {addError && <div className="text-red-600 font-semibold text-sm">{addError}</div>}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-pink-700 mb-1">Subject</label>
+                      <div className="relative">
+                        <select
+                          className="custom-select w-full border-2 border-pink-300 rounded-full px-4 pr-10 py-2 text-base focus:outline-none focus:ring-4 focus:ring-pink-200 bg-pink-50 font-medium transition-all duration-200"
+                          value={addSubjectId}
+                          onChange={e => setAddSubjectId(e.target.value)}
+                          required
+                        >
+                          <option value="">Select subject</option>
+                          {subjects.map(subj => (
+                            <option key={subj.id} value={subj.id}>{subj.name}</option>
+                          ))}
+                        </select>
+                        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
+                          <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-pink-700 mb-1">Exam Date</label>
+                      <input
+                        type="date"
+                        className="w-full border-2 border-pink-300 rounded-full px-4 py-2 text-base focus:outline-none focus:ring-4 focus:ring-pink-200 bg-pink-50 font-medium transition-all duration-200"
+                        value={addExamDate}
+                        onChange={e => setAddExamDate(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-pink-700 mb-1">Teacher</label>
+                      <input
+                        className="w-full border-2 border-pink-300 rounded-full px-4 py-2 text-base focus:outline-none focus:ring-4 focus:ring-pink-200 bg-pink-50 font-medium transition-all duration-200"
+                        value={addTeacher}
+                        onChange={e => setAddTeacher(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-pink-700 mb-1">Score</label>
+                      <input
+                        type="number"
+                        className="w-full border-2 border-pink-300 rounded-full px-4 py-2 text-base focus:outline-none focus:ring-4 focus:ring-pink-200 bg-pink-50 font-medium transition-all duration-200"
+                        value={addScore}
+                        onChange={e => setAddScore(e.target.value)}
+                        min="0"
+                        max="100"
+                        step="0.01"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    className="bg-pink-500 text-white px-6 py-2 rounded-full font-bold hover:bg-pink-600 transition-all mt-2 disabled:opacity-50 text-lg"
+                    disabled={addLoading}
+                  >
+                    {addLoading ? 'Adding...' : 'Add Subject'}
+                  </button>
+                </form>
+              )}
               <div className="space-y-4">
                 {examSubjects.map((subject) => (
                   <div
                     key={subject.id}
                     className="bg-gray-50 rounded-2xl p-4 border border-pink-100"
                   >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="font-semibold text-gray-800">
-                          {subject.subject?.name || 'Unknown Subject'}
-                        </h4>
-                        <div className="mt-2 space-y-1">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <CalendarIcon className="w-4 h-4 mr-2 text-pink-500" />
-                            {formatDate(subject.exam_date)}
+                    <div className={`grid grid-cols-1 sm:grid-cols-${isOwner ? '5' : '4'} gap-2 items-center`}>
+                      <div className="font-semibold text-gray-800 truncate">{subject.subject?.name || 'Unknown Subject'}</div>
+                      {editId === subject.id ? (
+                        <>
+                          <div>
+                            <label className="block text-xs text-pink-700 mb-1">Exam Date</label>
+                            <input
+                              type="date"
+                              className="w-full border-2 border-pink-300 rounded-full px-3 py-1 text-base focus:outline-none focus:ring-4 focus:ring-pink-200 bg-pink-50 font-medium"
+                              value={editExamDate}
+                              onChange={e => setEditExamDate(e.target.value)}
+                            />
                           </div>
-                        </div>
-                      </div>
-                      {isOwner && (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => {/* TODO: Implement edit subject schedule */}}
-                            className="bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded-full p-2 transition-all duration-150"
-                            title="Edit Schedule"
-                          >
-                            <CalendarIcon className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {/* TODO: Implement add/edit score */}}
-                            className="bg-sky-100 hover:bg-sky-200 text-sky-700 rounded-full p-2 transition-all duration-150"
-                            title="Add/Edit Score"
-                          >
-                            <ChartBarIcon className="w-4 h-4" />
-                          </button>
-                        </div>
+                          <div>
+                            <label className="block text-xs text-pink-700 mb-1">Teacher</label>
+                            <input
+                              className="w-full border-2 border-pink-300 rounded-full px-3 py-1 text-base focus:outline-none focus:ring-4 focus:ring-pink-200 bg-pink-50 font-medium"
+                              value={editTeacher}
+                              onChange={e => setEditTeacher(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-pink-700 mb-1">Score</label>
+                            <input
+                              type="number"
+                              className="w-full border-2 border-pink-300 rounded-full px-3 py-1 text-base focus:outline-none focus:ring-4 focus:ring-pink-200 bg-pink-50 font-medium"
+                              value={editScore}
+                              onChange={e => setEditScore(e.target.value)}
+                              min="0"
+                              max="100"
+                              step="0.01"
+                            />
+                          </div>
+                          {isOwner && (
+                            <div className="flex gap-2 justify-end">
+                              <button
+                                onClick={() => handleSaveEdit(subject.id)}
+                                className="bg-green-400 hover:bg-green-500 text-white rounded-full p-2 transition-all duration-150 cursor-pointer"
+                                title="Save"
+                                disabled={editLoading}
+                              >
+                                <CheckIcon className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={handleCancelEdit}
+                                className="bg-gray-300 hover:bg-gray-400 text-white rounded-full p-2 transition-all duration-150 cursor-pointer"
+                                title="Cancel"
+                                disabled={editLoading}
+                              >
+                                <XMarkIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-center">
+                            <CalendarIcon className="w-4 h-4 mr-2 text-pink-500" />
+                            {subject.exam_date ? formatDate(subject.exam_date) : 'N/A'}
+                          </div>
+                          <div className="flex items-center">
+                            <UserIcon className="w-4 h-4 mr-2 text-pink-500" />
+                            {subject.teacher_name || 'N/A'}
+                          </div>
+                          <div className="flex items-center">
+                            <ChartBarIcon className="w-4 h-4 mr-2 text-pink-500" />
+                            {subject.score !== null && subject.score !== undefined ? subject.score : 'N/A'}
+                          </div>
+                          {isOwner && (
+                            <div className="flex gap-2 justify-end">
+                              <button
+                                onClick={() => handleEdit(subject)}
+                                className="bg-yellow-300 hover:bg-yellow-400 text-yellow-900 rounded-full p-2 transition-all duration-150 cursor-pointer"
+                                title="Edit"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteSubject(subject.id)}
+                                className="bg-red-100 hover:bg-red-200 text-red-700 rounded-full p-2 transition-all duration-150 cursor-pointer"
+                                title="Delete"
+                                disabled={editLoading}
+                              >
+                                <TrashIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
