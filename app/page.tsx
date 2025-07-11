@@ -67,7 +67,8 @@ export default function Home() {
 
   // Function to get exam subjects for a specific date
   const getExamSubjects = (date: Date) => {
-    const dateToCheck = date.toISOString().split('T')[0];
+    // Format the calendar date as YYYY-MM-DD in local time
+    const dateToCheck = formatLocalDate(date);
     return examSubjects.filter(subject => subject.exam_date === dateToCheck);
   };
 

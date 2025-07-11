@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { CalendarIcon, UserIcon, ChartBarIcon } from "@heroicons/react/24/outline";
-import { PencilIcon, TrashIcon, XMarkIcon, AcademicCapIcon, ClipboardDocumentCheckIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, TrashIcon, XMarkIcon, AcademicCapIcon, ClipboardDocumentCheckIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { ExamPeriod, ExamTypeColors } from "@/types/exam";
 
 export default function ExamPage() {
@@ -347,8 +347,8 @@ export default function ExamPage() {
                         <p className="font-semibold text-gray-700">Year {exam.year}</p>
                         <p className="text-sm text-gray-600">Class {exam.class} • Term {exam.term}</p>
                       </div>
-                      <button className="bg-pink-100 hover:bg-pink-200 p-2 rounded-full transition-all duration-200">
-                        <MagnifyingGlassIcon className="w-4 h-4 text-pink-600" />
+                      <button className="hover:bg-pink-100 p-2 rounded-full transition-all duration-200">
+                        <ChevronRightIcon className="w-4 h-4 text-pink-600" />
                       </button>
                     </div>
                   </div>
@@ -365,7 +365,7 @@ export default function ExamPage() {
             onClick={closeModal}
           >
             <div 
-              className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative"
+              className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative overflow-y-auto max-h-screen"
               onClick={(e) => e.stopPropagation()}
             >
               <button

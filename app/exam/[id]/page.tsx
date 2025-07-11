@@ -31,6 +31,8 @@ export default function ExamDetailPage() {
   const [editScore, setEditScore] = React.useState('');
   const [editLoading, setEditLoading] = React.useState(false);
   const [editError, setEditError] = React.useState('');
+  const [deleteSubjectId, setDeleteSubjectId] = React.useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = React.useState(false);
 
   React.useEffect(() => {
     const checkUser = async () => {
@@ -247,17 +249,24 @@ export default function ExamDetailPage() {
 
   // Add delete handler for exam_subjects
   const handleDeleteSubject = async (subjectId: string) => {
+    setDeleteSubjectId(subjectId);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteSubjectId) return;
     setEditLoading(true);
     setEditError('');
     const { error } = await supabase
       .from('exam_subjects')
       .delete()
-      .eq('id', subjectId);
+      .eq('id', deleteSubjectId);
     setEditLoading(false);
     if (error) {
       setEditError('Failed to delete.');
     } else {
-      setEditId(null);
+      setDeleteSubjectId(null);
+      setShowDeleteModal(false);
       // Refresh subject schedule
       const { data: subjectsData } = await supabase
         .from('exam_subjects')
@@ -266,6 +275,11 @@ export default function ExamDetailPage() {
         .order('exam_date', { ascending: true });
       setExamSubjects(subjectsData || []);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteSubjectId(null);
+    setShowDeleteModal(false);
   };
 
   if (loading) {
@@ -468,7 +482,7 @@ export default function ExamDetailPage() {
                     key={subject.id}
                     className="bg-gray-50 rounded-2xl p-4 border border-pink-100"
                   >
-                    <div className={`grid grid-cols-1 sm:grid-cols-${isOwner ? '5' : '4'} gap-2 items-center`}>
+                    <div className={isOwner ? 'grid grid-cols-1 sm:grid-cols-5 gap-2 items-center' : 'grid grid-cols-1 sm:grid-cols-4 gap-2 items-center'}>
                       <div className="font-semibold text-gray-800 truncate">{subject.subject?.name || 'Unknown Subject'}</div>
                       {editId === subject.id ? (
                         <>
@@ -571,6 +585,57 @@ export default function ExamDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && deleteSubjectId && (
+        <div 
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+        onClick={handleCancelDelete}
+      >
+        <div 
+          className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={handleCancelDelete}
+            className="absolute top-4 right-4 text-pink-500 hover:text-pink-700 text-2xl font-bold"
+            aria-label="Close"
+          >
+            <XMarkIcon className="w-7 h-7" />
+          </button>
+
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-red-600">Delete Subject</h2>
+          </div>
+
+          <div className="bg-red-50 rounded-2xl p-4">
+            <p className="text-red-700 font-medium">Are you sure you want to delete this subject?</p>
+            <div className="mt-2 text-sm text-gray-600">
+                <p className="mt-1 text-lg font-semibold">{examSubjects.find(subject => subject.id === deleteSubjectId)?.subject?.name}</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4 justify-end mt-6">
+            <button
+              type="button"
+              onClick={handleCancelDelete}
+              className="bg-gray-300 hover:bg-gray-400 text-white rounded-full px-6 py-2 font-bold transition-all duration-200"
+              disabled={editLoading}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmDelete}
+              className="bg-red-500 hover:bg-red-600 text-white rounded-full px-6 py-2 font-bold transition-all duration-200"
+              disabled={editLoading}
+            >
+              {editLoading ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
+        </div>
+      </div>
+      )}
     </div>
   );
 } 
