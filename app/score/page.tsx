@@ -100,7 +100,7 @@ async function getFilterOptions() {
     return { classes: [], terms: [] };
   }
 
-  const classes = [...new Set(data.map(item => item.class))].sort();
+  const classes = [...new Set(data.map(item => item.class))].sort((a, b) => b - a);
   const terms = [...new Set(data.map(item => item.term))].sort((a, b) => a - b);
 
   return { classes, terms };
@@ -192,7 +192,7 @@ const ScorePage = () => {
 
         {/* Analysis by Type Chart */}
         <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100 mb-6">
-          <h2 className="text-xl text-pink-700 mb-4 text-center">Analysis by Type</h2>
+          <h2 className="text-xl text-pink-700 mb-4 font-bold text-center">Analysis by Type</h2>
           
           {/* Filters inside the chart box */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 rounded-2xl">
@@ -267,7 +267,7 @@ const ScorePage = () => {
 
         {/* Progress Over Time Chart */}
         <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
-          <h2 className="text-xl text-pink-700 mb-4 text-center">Progress Over Time</h2>
+          <h2 className="text-xl text-pink-700 mb-4 font-bold text-center">Progress Over Time</h2>
           {progressData.length > 0 ? (
             <ResponsiveContainer width="100%" height={400}>
               <LineChart

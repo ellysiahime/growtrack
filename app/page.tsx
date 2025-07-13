@@ -8,6 +8,7 @@ import { BookOpenIcon, AcademicCapIcon, ChartBarIcon } from '@heroicons/react/24
 import { ExamPeriod, ExamSubject } from '@/types/exam';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import HomeScoreOverviewChart from './components/HomeScoreOverviewChart';
 
 export default function Home() {
   const [examPeriods, setExamPeriods] = useState<ExamPeriod[]>([]);
@@ -170,13 +171,9 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Score Chart Section */}
           <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
-            <h2 className="text-xl font-bold text-pink-700 mb-4">Score Overview</h2>
+            <h2 className="text-xl font-bold text-pink-700 mb-4">Latest Exam Score</h2>
             <div className="aspect-[4/3] bg-gray-50 rounded-2xl border-2 border-dashed border-pink-100 flex items-center justify-center">
-              <div className="text-center p-6">
-                <ChartBarIcon className="w-12 h-12 text-pink-200 mx-auto mb-2" />
-                <p className="text-gray-500 font-medium">Score chart coming soon!</p>
-                <p className="text-gray-400 text-sm">Track your progress over time</p>
-              </div>
+              <HomeScoreOverviewChart />
             </div>
           </div>
 
@@ -213,15 +210,24 @@ export default function Home() {
         <div className="mt-6 bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
           <h2 className="text-xl font-bold text-pink-700 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <button className="flex items-center gap-3 p-4 bg-pink-100 hover:bg-pink-200 rounded-2xl transition-all duration-200">
+            <button
+              onClick={() => router.push('/subjects')}
+              className="flex items-center gap-3 p-4 bg-pink-100 hover:bg-pink-200 rounded-2xl transition-all duration-200"
+            >
               <BookOpenIcon className="w-6 h-6 text-pink-600" />
-              <span className="font-semibold text-pink-700">Manage Subjects</span>
+              <span className="font-semibold text-pink-700">Subjects List</span>
             </button>
-            <button className="flex items-center gap-3 p-4 bg-sky-100 hover:bg-sky-200 rounded-2xl transition-all duration-200">
+            <button
+              onClick={() => router.push('/exam')}
+              className="flex items-center gap-3 p-4 bg-sky-100 hover:bg-sky-200 rounded-2xl transition-all duration-200"
+            >
               <AcademicCapIcon className="w-6 h-6 text-sky-600" />
-              <span className="font-semibold text-sky-700">Add Exam</span>
+              <span className="font-semibold text-sky-700">Exam Period</span>
             </button>
-            <button className="flex items-center gap-3 p-4 bg-purple-100 hover:bg-purple-200 rounded-2xl transition-all duration-200">
+            <button
+              onClick={() => router.push('/score')}
+              className="flex items-center gap-3 p-4 bg-purple-100 hover:bg-purple-200 rounded-2xl transition-all duration-200"
+            >
               <ChartBarIcon className="w-6 h-6 text-purple-600" />
               <span className="font-semibold text-purple-700">View Scores</span>
             </button>
