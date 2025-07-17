@@ -197,6 +197,36 @@ const ScorePage = () => {
     </div>
   );
 
+  // Custom Tooltip for Progress Over Time chart
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      // If a subject is highlighted, only show that subject's data
+      const filteredPayload = highlightedSubject
+        ? payload.filter((item: any) => item.dataKey === highlightedSubject)
+        : payload;
+
+      return (
+        <div className="bg-white shadow-lg p-4 border border-gray-200">
+          <p className="text-pink-600 mb-2">{label}</p>
+          {filteredPayload.map((item: any) => (
+            <div key={item.dataKey} className="flex justify-between">
+              <span 
+                className="mr-4" 
+                style={{ color: item.color }}
+              >
+                {item.dataKey}:
+              </span>
+              <span className="font-semibold" style={{ color: item.color }}>
+                {item.value !== null ? item.value : 'N/A'}
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return ( 
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-pink-100 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
@@ -308,7 +338,10 @@ const ScorePage = () => {
                       tick={{ fontSize: isMobile ? 10 : undefined }} 
                     />
                     <YAxis />
-                    {!isMobile && <Tooltip />}
+                    <Tooltip 
+                      content={<CustomTooltip />} 
+                      cursor={{ fill: 'transparent' }} 
+                    />
                     {/* Hide default legend, use custom below */}
                     {/* <Legend /> */}
                     {subjects.map((subject, index) => (
