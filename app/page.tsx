@@ -170,9 +170,9 @@ export default function Home() {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Score Chart Section */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
+          <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100 lg:h-auto">
             <h2 className="text-xl font-bold text-pink-700 mb-4">Latest Exam Score</h2>
-            <div className="aspect-[4/3] bg-gray-50 rounded-2xl border-2 border-dashed border-pink-100 flex items-center justify-center">
+            <div className="bg-gray-50 rounded-2xl border-2 border-dashed border-pink-100 flex items-center justify-center">
               <HomeScoreOverviewChart />
             </div>
           </div>

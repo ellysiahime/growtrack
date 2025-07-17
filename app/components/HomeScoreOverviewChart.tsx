@@ -83,30 +83,75 @@ export default function HomeScoreOverviewChart() {
   }, []);
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center">
+    <div className="w-full h-full flex flex-col">
       {loading ? (
-        <div className="text-gray-400">Loading chart...</div>
+        <div className="flex-grow flex items-center justify-center text-gray-400">
+          Loading chart...
+        </div>
       ) : data.length > 0 ? (
         <>
           <div
-            className={`font-semibold mb-2 text-center ${
+            className={`font-semibold mb-2 mt-4 text-center ${
               currentExamType == 'Final' ? 'text-purple-600' : 'text-sky-600'
             }`}
           >
             {periodLabel}
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="subject" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="score" fill={currentExamType == 'Final' ? '#805ad5' : '#0284c7'} name="Score" />
-            </BarChart>
-          </ResponsiveContainer>
+          
+          {/* Desktop Chart - Hidden on mobile */}
+          <div className="hidden md:block w-full flex-grow">
+            <ResponsiveContainer width="100%" height={370}>
+              <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="subject" 
+                  tick={{ fontSize: 10 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="score" fill={currentExamType == 'Final' ? '#805ad5' : '#0284c7'} name="Score" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Mobile Table - Visible only on mobile */}
+          <div className="block md:hidden w-full flex-grow flex items-center justify-center overflow-hidden">
+            <div className="w-full max-w-full">
+              <table className="w-full text-left border-collapse rounded-2xl">
+                <thead>
+                  <tr className="border-b border-gray-300">
+                    <th className="py-2 px-4 text-left font-semibold text-gray-600">Subject</th>
+                    <th className="py-2 px-4 text-right font-semibold text-gray-600">Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.map((item, index) => (
+                    <tr key={index} className="border-b border-gray-200 last:border-b-0">
+                      <td className="py-2 px-4">{item.subject}</td>
+                      <td className="py-2 px-4 text-right">
+                        <span 
+                          className={`font-semibold ${
+                            currentExamType == 'Final' 
+                              ? 'text-purple-600' 
+                              : 'text-sky-600'
+                          }`}
+                        >
+                          {item.score}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </>
       ) : (
-        <div className="text-gray-400">No complete score data found for any exam period.</div>
+        <div className="flex-grow flex items-center justify-center text-gray-400">
+          No complete score data found for any exam period.
+        </div>
       )}
     </div>
   );
