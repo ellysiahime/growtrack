@@ -118,6 +118,24 @@ const ScorePage = () => {
   const [selectedTerm, setSelectedTerm] = useState<string>('all');
   // State for highlighted subject in line chart
   const [highlightedSubject, setHighlightedSubject] = useState<string | null>(null);
+  // New state for responsive font size
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Handle window resize for responsive font sizing
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    // Check initial size
+    checkMobile();
+    
+    // Add event listener
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Fetch filter options and progress data on mount
   useEffect(() => {
@@ -155,7 +173,7 @@ const ScorePage = () => {
     ? Object.keys(progressData[0]).filter(key => key !== 'exam_period')
     : [];
 
-  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#ff0000', '#00ff00'];
+  const colors = ['#ff595e', '#ff8531', '#ffca3a', '#8ac926', '#1fa189', '#4e75b5', '#8373e6', '#ed72ed'];
 
   // Custom legend for line chart
   const renderCustomLegend = () => (
@@ -191,7 +209,7 @@ const ScorePage = () => {
         </div> 
 
         {/* Analysis by Type Chart */}
-        <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100 mb-6">
+        <div className="bg-white rounded-3xl p-2 pb-4 pt-4 sm:p-6 shadow-xl border-2 border-pink-100 mb-6">
           <h2 className="text-xl text-pink-700 mb-4 font-bold text-center">Analysis by Type</h2>
           
           {/* Filters inside the chart box */}
@@ -244,20 +262,28 @@ const ScorePage = () => {
               <p className="text-gray-500">Loading chart data...</p>
             </div>
           ) : data.length > 0 ? (
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart
-                data={data}
-                margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="subject" tickLine={false} />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="midterm" fill="#0284c7" name={bar1Name} />
-                <Bar dataKey="final" fill="#805ad5" name={bar2Name} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="w-full overflow-x-auto">
+              <div className="min-w-[500px]"> {/* Ensures minimum width for desktop */}
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart
+                    data={data}
+                    margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="subject" 
+                      tick={{ fontSize: isMobile ? 10 : undefined }} 
+                      tickLine={false} 
+                    />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="midterm" fill="#0284c7" name={bar1Name} />
+                    <Bar dataKey="final" fill="#805ad5" name={bar2Name} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           ) : (
             <div className="flex justify-center items-center h-[400px]">
               <p className="text-gray-500">No score data available for the selected filters.</p>
@@ -266,35 +292,42 @@ const ScorePage = () => {
         </div>
 
         {/* Progress Over Time Chart */}
-        <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
+        <div className="bg-white rounded-3xl p-2 pb-4 pt-4 sm:p-6 shadow-xl border-2 border-pink-100">
           <h2 className="text-xl text-pink-700 mb-4 font-bold text-center">Progress Over Time</h2>
           {progressData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart
-                data={progressData}
-                margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="exam_period" />
-                <YAxis />
-                <Tooltip />
-                {/* Hide default legend, use custom below */}
-                {/* <Legend /> */}
-                {subjects.map((subject, index) => (
-                  <Line
-                    key={subject}
-                    type="monotone"
-                    dataKey={subject}
-                    stroke={colors[index % colors.length]}
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                    opacity={highlightedSubject && highlightedSubject !== subject ? 0 : 1}
-                    activeDot={{ r: 6 }}
-                    isAnimationActive={false}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="w-full overflow-x-auto">
+              <div className="min-w-[500px]"> {/* Ensures minimum width for desktop */}
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart
+                    data={progressData}
+                    margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="exam_period" 
+                      tick={{ fontSize: isMobile ? 10 : undefined }} 
+                    />
+                    <YAxis />
+                    {!isMobile && <Tooltip />}
+                    {/* Hide default legend, use custom below */}
+                    {/* <Legend /> */}
+                    {subjects.map((subject, index) => (
+                      <Line
+                        key={subject}
+                        type="monotone"
+                        dataKey={subject}
+                        stroke={colors[index % colors.length]}
+                        strokeWidth={2}
+                        dot={{ r: 3 }}
+                        opacity={highlightedSubject && highlightedSubject !== subject ? 0 : 1}
+                        activeDot={{ r: 3 }}
+                        isAnimationActive={false}
+                      />
+                    ))}
+                    </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>  
           ) : (
             <div className="flex justify-center items-center h-[400px]">
               <p className="text-gray-500">No progress data available.</p>
