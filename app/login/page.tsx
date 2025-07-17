@@ -30,7 +30,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-pink-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-100 to-pink-200">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white shadow-xl rounded-3xl p-8 border-2 border-pink-100">
           <h1 className="text-3xl font-extrabold mb-8 text-center text-pink-600 drop-shadow-lg tracking-wide">

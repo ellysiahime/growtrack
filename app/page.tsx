@@ -1,4 +1,5 @@
 'use client';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import Calendar from 'react-calendar';
@@ -14,7 +15,27 @@ export default function Home() {
   const [examPeriods, setExamPeriods] = useState<ExamPeriod[]>([]);
   const [examSubjects, setExamSubjects] = useState<ExamSubject[]>([]);
   const [loading, setLoading] = useState(true);
+  const [overallPerformance, setOverallPerformance] = useState<number | null>(null);
+  const [subjectPerformanceRanking, setSubjectPerformanceRanking] = useState<Array<{subject: string, averageScore: number}>>([]);
   const router = useRouter();
+  // New state for responsive font size
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Handle window resize for responsive font sizing
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    // Check initial size
+    checkMobile();
+    
+    // Add event listener
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     fetchExamPeriods();
@@ -48,6 +69,45 @@ export default function Home() {
       console.error('Error fetching exam subjects:', error);
     } else {
       setExamSubjects(data || []);
+      
+
+      // Filter out null or undefined scores
+      const validSubjects = (data || []).filter(subject => 
+        subject.score !== null && 
+        subject.score !== undefined && 
+        !isNaN(subject.score)
+      );
+      
+      // Calculate overall performance
+      if (validSubjects.length > 0) {
+        const totalScore = validSubjects.reduce((sum, subject) => sum + (subject.score || 0), 0);
+        const averageScore = totalScore / validSubjects.length;
+        setOverallPerformance(Math.round(averageScore * 10) / 10); // Round to 1 decimal place
+      } else {
+        setOverallPerformance(null);
+      }
+
+      // Calculate subject performance ranking
+      const subjectScores: {[key: string]: {total: number, count: number}} = {};
+      validSubjects.forEach(subject => {
+        if (subject.subject?.name && subject.score !== undefined) {
+          if (!subjectScores[subject.subject.name]) {
+            subjectScores[subject.subject.name] = { total: 0, count: 0 };
+          }
+          subjectScores[subject.subject.name].total += subject.score;
+          subjectScores[subject.subject.name].count += 1;
+        }
+      });
+
+      // Calculate average scores and sort
+      const performanceRanking = Object.entries(subjectScores)
+        .map(([subject, { total, count }]) => ({
+          subject, 
+          averageScore: Math.round((total / count) * 10) / 10
+        }))
+        .sort((a, b) => b.averageScore - a.averageScore);
+
+      setSubjectPerformanceRanking(performanceRanking);
     }
   };
 
@@ -97,9 +157,7 @@ export default function Home() {
 
   // Handle click on calendar day
   const handleDayClick = (date: Date) => {
-    console.log('Clicked date:', date);
     const exam = getExamPeriodForDate(date);
-    console.log('Exam found:', exam);
     if (exam) {
       router.push(`/exam/${exam.id}`);
     }
@@ -156,7 +214,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-pink-100 p-4 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-orange-100 to-pink-200 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -166,6 +224,52 @@ export default function Home() {
           </h1>
           <p className="text-gray-700 text-lg">Overall Dashboard</p>
         </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          {/* Academic Performance Overview */}
+          <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
+            <h2 className="text-xl font-bold text-pink-700 mb-4">Academic Overview</h2>
+            <div className="flex items-center justify-center">
+              {overallPerformance !== null ? (
+                <div className="text-center">
+                  <p className="text-4xl font-bold text-pink-600">{overallPerformance}</p>
+                  <p className="text-sm text-gray-500 mt-2">Average Score of all subjects</p>
+                </div>
+              ) : (
+                <p className="text-gray-500">No exam scores available</p>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className={`bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100 lg:col-span-2 ${isMobile ? 'hidden' : ''}`}>
+            <h2 className="text-xl font-bold text-pink-700 mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <button
+                onClick={() => router.push('/subjects')}
+                className="flex items-center gap-3 p-4 bg-pink-100 hover:bg-pink-200 rounded-2xl transition-all duration-200"
+              >
+                <BookOpenIcon className="w-6 h-6 text-pink-600" />
+                <span className="font-semibold text-pink-700">Subjects List</span>
+              </button>
+              <button
+                onClick={() => router.push('/exam')}
+                className="flex items-center gap-3 p-4 bg-sky-100 hover:bg-sky-200 rounded-2xl transition-all duration-200"
+              >
+                <AcademicCapIcon className="w-6 h-6 text-sky-600" />
+                <span className="font-semibold text-sky-700">Exam Period</span>
+              </button>
+              <button
+                onClick={() => router.push('/score')}
+                className="flex items-center gap-3 p-4 bg-purple-100 hover:bg-purple-200 rounded-2xl transition-all duration-200"
+              >
+                <ChartBarIcon className="w-6 h-6 text-purple-600" />
+                <span className="font-semibold text-purple-700">View Scores</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -206,31 +310,66 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mt-6 bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
-          <h2 className="text-xl font-bold text-pink-700 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <button
-              onClick={() => router.push('/subjects')}
-              className="flex items-center gap-3 p-4 bg-pink-100 hover:bg-pink-200 rounded-2xl transition-all duration-200"
-            >
-              <BookOpenIcon className="w-6 h-6 text-pink-600" />
-              <span className="font-semibold text-pink-700">Subjects List</span>
-            </button>
-            <button
-              onClick={() => router.push('/exam')}
-              className="flex items-center gap-3 p-4 bg-sky-100 hover:bg-sky-200 rounded-2xl transition-all duration-200"
-            >
-              <AcademicCapIcon className="w-6 h-6 text-sky-600" />
-              <span className="font-semibold text-sky-700">Exam Period</span>
-            </button>
-            <button
-              onClick={() => router.push('/score')}
-              className="flex items-center gap-3 p-4 bg-purple-100 hover:bg-purple-200 rounded-2xl transition-all duration-200"
-            >
-              <ChartBarIcon className="w-6 h-6 text-purple-600" />
-              <span className="font-semibold text-purple-700">View Scores</span>
-            </button>
+        <div className="mt-6">
+          {/* Subject Performance Ranking - Full Width */}
+          <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-xl border-2 border-pink-200 mb-6">
+            <h2 className="text-xl font-bold text-pink-700 mb-4">Subject Performance Ranking</h2>
+            <div className="bg-gray-50 rounded-2xl border-2 border-dashed border-pink-100 flex items-center justify-center p-2 sm:p-6">
+              {subjectPerformanceRanking.length > 0 ? (
+                <ResponsiveContainer width="100%" height={isMobile ? 250 : 400}>
+                  <BarChart
+                    layout="vertical"
+                    data={subjectPerformanceRanking}
+                    margin={{ 
+                      left: isMobile ? -40 : 0, 
+                      right: 0, 
+                      top: 0, 
+                      bottom: 0 
+                    }}
+                  >
+                    <defs>
+                      <linearGradient id="subjectPerformanceGradient" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#fecdd3"/> {/* Light pink */}
+                        <stop offset="100%" stopColor="#db2777"/> {/* Intense pink */}
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid 
+                      strokeDasharray="3 3" 
+                      horizontal={false} 
+                      vertical={true} 
+                      stroke="#e5e7eb" 
+                    />
+                    <XAxis 
+                      type="number" 
+                      domain={[0, 100]} 
+                      tickLine={false}
+                    />
+                    <YAxis 
+                      type="category" 
+                      dataKey="subject" 
+                      width={100} 
+                      tickLine={false}
+                      tick={{ fontSize: isMobile ? 10 : undefined }} 
+                    />
+                    <Tooltip 
+                      formatter={(value) => [
+                        <span key="value" className="text-pink-600">{value}</span>, 
+                        'Average Score'
+                      ]} 
+                      labelStyle={{ color: 'black' }}
+                    />
+                    <Bar 
+                      dataKey="averageScore" 
+                      fill="url(#subjectPerformanceGradient)" 
+                      barSize={isMobile ? 10 : 15} 
+                      radius={[0, 10, 10, 0]} 
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-gray-500">No subject performance data available</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

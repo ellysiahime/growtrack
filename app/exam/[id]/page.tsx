@@ -61,7 +61,11 @@ export default function ExamDetailPage() {
           .eq('id', examId)
           .single();
 
-        if (examError) throw examError;
+        if (examError || !examData) {
+          // If no data found, trigger not-found
+          router.replace('/not-found');
+          return;
+        }
         setExam(examData);
 
         // Fetch exam subjects
@@ -78,14 +82,14 @@ export default function ExamDetailPage() {
         setExamSubjects(subjectsData || []);
       } catch (err) {
         console.error('Error fetching data:', err);
-        setError('Failed to fetch exam details.');
+        router.replace('/not-found');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [examId]);
+  }, [examId, router]);
 
   // Fetch subjects for dropdown
   React.useEffect(() => {
@@ -284,7 +288,7 @@ export default function ExamDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-pink-100 p-4 sm:p-6">
+      <div className="min-h-screen bg-gradient-to-br from-orange-100 to-pink-200 p-4 sm:p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center py-12">
             <div className="text-gray-600 font-bold text-xl">Loading exam details...</div>
@@ -296,7 +300,7 @@ export default function ExamDetailPage() {
 
   if (error || !exam) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-pink-100 p-4 sm:p-6">
+      <div className="min-h-screen bg-gradient-to-br from-orange-100 to-pink-200 p-4 sm:p-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-red-100 border-2 border-red-300 rounded-3xl p-4 mb-6">
             <p className="text-red-700 font-semibold text-center">{error || 'Exam not found'}</p>
@@ -316,7 +320,7 @@ export default function ExamDetailPage() {
   const colors = getExamTypeColors(exam.exam_type);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-pink-100 p-4 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-orange-100 to-pink-200 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header with back button */}
         <div className="flex items-center gap-4 mb-8">
