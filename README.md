@@ -65,7 +65,7 @@ Originally developed for private family use, it serves as a centralized academic
 
 ## 🌐 Live Demo
 
-View with Read-only access 👉 [https://your-vercel-url.vercel.app](https://growtrack-kappa.vercel.app)
+View with Read-only access 👉 [https://growtrack-kappa.vercel.app](https://growtrack-kappa.vercel.app)
 
 ---
 
