@@ -148,12 +148,10 @@ export default function SubjectsPage() {
     if (name.includes('physics')) return '⚡';
     if (name.includes('biology')) return '🧬';
     if (name.includes('economics')) return '💰';
-    if (name.includes('literature')) return '📚';
-    if (name.includes('philosophy')) return '🤔';
-    if (name.includes('psychology')) return '🧠';
-    if (name.includes('sociology')) return '👥';
+    if (name.includes('reading')) return '📝';
+    if (name.includes('captain')) return '👑';
     if (name.includes('chinese') || name.includes('bahasa') || name.includes('spanish') || name.includes('french')) return '🗣️';
-    return '📝'; // default icon
+    return '📚'; // default icon
   };
 
   return (

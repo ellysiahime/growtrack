@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { HomeIcon, AcademicCapIcon, ChartBarIcon, BookOpenIcon, ArrowRightStartOnRectangleIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { HomeIcon, AcademicCapIcon, ChartBarIcon, BookOpenIcon, CalendarDaysIcon, ArrowRightStartOnRectangleIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from 'next/image';
@@ -37,6 +37,7 @@ export default function Sidebar() {
     { name: "Exam", href: "/exam", icon: AcademicCapIcon },
     { name: "Score", href: "/score", icon: ChartBarIcon },
     { name: "Subjects", href: "/subjects", icon: BookOpenIcon },
+    { name: "Timetable", href: "/timetable", icon: CalendarDaysIcon },
   ];
 
   // Hamburger button for mobile

@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabaseClient';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './styles/calendar.css';
-import { BookOpenIcon, AcademicCapIcon, ChartBarIcon } from '@heroicons/react/24/solid';
+import { BookOpenIcon, AcademicCapIcon, CalendarDaysIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 import { ExamPeriod, ExamSubject } from '@/types/exam';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -244,14 +244,7 @@ export default function Home() {
           {/* Quick Actions */}
           <div className={`bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100 lg:col-span-2 ${isMobile ? 'hidden' : ''}`}>
             <h2 className="text-xl font-bold text-pink-700 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <button
-                onClick={() => router.push('/subjects')}
-                className="flex items-center gap-3 p-4 bg-pink-100 hover:bg-pink-200 rounded-2xl transition-all duration-200"
-              >
-                <BookOpenIcon className="w-6 h-6 text-pink-600" />
-                <span className="font-semibold text-pink-700">Subjects List</span>
-              </button>
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <button
                 onClick={() => router.push('/exam')}
                 className="flex items-center gap-3 p-4 bg-sky-100 hover:bg-sky-200 rounded-2xl transition-all duration-200"
@@ -265,6 +258,20 @@ export default function Home() {
               >
                 <ChartBarIcon className="w-6 h-6 text-purple-600" />
                 <span className="font-semibold text-purple-700">View Scores</span>
+              </button>
+              <button
+                onClick={() => router.push('/subjects')}
+                className="flex items-center gap-3 p-4 bg-pink-100 hover:bg-pink-200 rounded-2xl transition-all duration-200"
+              >
+                <BookOpenIcon className="w-6 h-6 text-pink-600" />
+                <span className="font-semibold text-pink-700">Subjects List</span>
+              </button>
+              <button
+                onClick={() => router.push('/timetable')}
+                className="flex items-center gap-3 p-4 bg-green-100 hover:bg-green-200 rounded-2xl transition-all duration-200"
+              >
+                <CalendarDaysIcon className="w-6 h-6 text-green-600" />
+                <span className="font-semibold text-green-700">Timetable</span>
               </button>
             </div>
           </div>
