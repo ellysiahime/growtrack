@@ -15,7 +15,7 @@
     "@supabase/supabase-js": "^2.50.3",
     "@types/react-calendar": "^3.9.0",
     "@types/recharts": "^1.8.29",
-    "next": "15.3.5",
+    "next": "^15.3.6",
     "react": "^19.0.0",
     "react-calendar": "^6.0.0",
     "react-dom": "^19.0.0",

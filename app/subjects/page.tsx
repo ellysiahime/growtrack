@@ -143,7 +143,7 @@ export default function SubjectsPage() {
     if (name.includes('art') || name.includes('drawing')) return '🎨';
     if (name.includes('music')) return '🎵';
     if (name.includes('physical') || name.includes('pe') || name.includes('sport')) return '⚽';
-    if (name.includes('computer') || name.includes('it') || name.includes('technology')) return '💻';
+    if (name.includes('computer') || name.includes('ict') || name.includes('technology')) return '💻';
     if (name.includes('chemistry')) return '🧪';
     if (name.includes('physics')) return '⚡';
     if (name.includes('biology')) return '🧬';
