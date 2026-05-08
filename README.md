@@ -1,15 +1,15 @@
 # GrowTrack <img src="./public/growtrack_logo.png" alt="GrowTrack Logo" width="40"/>
 
-**GrowTrack** is a private full-stack academic tracker built to help monitor a child's educational progress — from exam schedules and subject scores to weekly timetables and overall performance trends.
+**GrowTrack** is a private AI-enhanced full-stack academic tracker built to help monitor a child’s educational progress — from exam schedules and subject scores to weekly timetables, performance trends, and AI-generated learning insights.
 
-Originally developed for private family use, it serves as a centralized academic tracker with rich visual insights and data-driven progress monitoring across multiple terms and school years. 
-
+Originally developed for private family use, it serves as a centralized academic dashboard with rich visual analytics, data-driven progress monitoring, and contextual AI feedback across multiple terms and school years.
 ---
 
 ## 🧰 Built With
 
 - ⚡️ [Next.js](https://nextjs.org/) – React framework for full-stack web apps
 - 🛠 [Supabase](https://supabase.com/) – Postgres database, Auth, RLS, and Storage  
+- ✨ [OpenAI API](https://platform.openai.com/docs/overview) – AI-generated academic insights based on completed scored exams
 - 💬 [Supabase Auth UI](https://supabase.com/docs/guides/auth/auth-helpers/nextjs) – Role-based authentication 
 - 🎨 [Tailwind CSS](https://tailwindcss.com/) – Utility-first CSS framework   
 - 📊 [Recharts](https://recharts.org/) – Lightweight charting library for data visualization  
@@ -30,6 +30,7 @@ Originally developed for private family use, it serves as a centralized academic
 - Latest exam results  
 - Upcoming exams calendar 
 - Subjects performance chart showing top-performing subjects by rank
+- Quick access to AI Insight generation from the homepage
 
 ### 📅 Exam Calendar  
 - Define exam periods (Term 1/2/3, Midterm/Final) with start & end dates
@@ -51,6 +52,12 @@ Originally developed for private family use, it serves as a centralized academic
 - Editable timetable grid  
 - Assign subjects to time slots by day  
 - Subjects populated from Subject Manager 
+
+### ✨ AI Insight Dashboard
+- Dedicated AI Insight page with strengths, weaknesses, study recommendations, notable trends, and motivational feedback
+- Uses all completed exam periods that contain numeric scores
+- Ignores future or unfinished exams, and does not regenerate when there is no newly eligible academic data
+- Loads the latest saved insight from Supabase and only calls OpenAI when the user clicks `Generate AI Insight`
 
 ### 📱 Mobile-Responsive UI  
 - Fully responsive for phones, tablets, and desktops
