@@ -3,7 +3,9 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import Calendar from 'react-calendar';
+// @ts-ignore: CSS module declaration not available for react-calendar package
 import 'react-calendar/dist/Calendar.css';
+// @ts-ignore: CSS module declaration not available for react-calendar package
 import './styles/calendar.css';
 import { BookOpenIcon, AcademicCapIcon, CalendarDaysIcon, ChartBarIcon } from '@heroicons/react/24/solid';
 import { ExamPeriod, ExamSubject } from '@/types/exam';
