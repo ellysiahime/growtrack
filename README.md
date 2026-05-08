@@ -1,8 +1,9 @@
 # GrowTrack <img src="./public/growtrack_logo.png" alt="GrowTrack Logo" width="40"/>
 
-**GrowTrack** is a private AI-enhanced full-stack academic tracker built to help monitor a child’s educational progress — from exam schedules and subject scores to weekly timetables, performance trends, and AI-generated learning insights.
+**GrowTrack** is a private AI-enhanced full-stack academic tracker built to help monitor a child’s educational progress — from exam schedules and subject scores to weekly timetables, performance trends, and AI-generated learning insights. 
 
 Originally developed for private family use, it serves as a centralized academic dashboard with rich visual analytics, data-driven progress monitoring, and contextual AI feedback across multiple terms and school years.
+
 ---
 
 ## 🧰 Built With
@@ -17,6 +18,7 @@ Originally developed for private family use, it serves as a centralized academic
 
 ![Next.js](https://img.shields.io/badge/Next.js-000?logo=nextdotjs&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)
+![OpenAI API](https://shields.io/badge/OpenAI-412991?style=flat&logo=openai&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-38B2AC?logo=tailwind-css&logoColor=white)
 ![Recharts](https://img.shields.io/badge/Recharts-888?logo=chart&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)
