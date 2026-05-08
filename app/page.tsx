@@ -3,11 +3,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import Calendar from 'react-calendar';
-// @ts-ignore: CSS module declaration not available for react-calendar package
+// @ts-ignore
 import 'react-calendar/dist/Calendar.css';
-// @ts-ignore: CSS module declaration not available for react-calendar package
+// @ts-ignore
 import './styles/calendar.css';
-import { BookOpenIcon, AcademicCapIcon, CalendarDaysIcon, ChartBarIcon } from '@heroicons/react/24/solid';
+import { BookOpenIcon, AcademicCapIcon, CalendarDaysIcon, ChartBarIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { ExamPeriod, ExamSubject } from '@/types/exam';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -227,7 +227,7 @@ export default function Home() {
           <p className="text-gray-700 text-lg">Overall Dashboard</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
           {/* Academic Performance Overview */}
           <div className="bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100">
             <h2 className="text-xl font-bold text-pink-700 mb-4">Academic Overview</h2>
@@ -244,9 +244,9 @@ export default function Home() {
           </div>
 
           {/* Quick Actions */}
-          <div className={`bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100 lg:col-span-2 ${isMobile ? 'hidden' : ''}`}>
+          <div className={`bg-white rounded-3xl p-6 shadow-xl border-2 border-pink-100 lg:col-span-3 ${isMobile ? 'hidden' : ''}`}>
             <h2 className="text-xl font-bold text-pink-700 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
               <button
                 onClick={() => router.push('/exam')}
                 className="flex items-center gap-3 p-4 bg-sky-100 hover:bg-sky-200 rounded-2xl transition-all duration-200"
@@ -274,6 +274,13 @@ export default function Home() {
               >
                 <CalendarDaysIcon className="w-6 h-6 text-green-600" />
                 <span className="font-semibold text-green-700">Timetable</span>
+              </button>
+              <button
+                onClick={() => router.push('/insights')}
+                className="flex items-center gap-3 p-4 bg-amber-100 hover:bg-amber-200 rounded-2xl transition-all duration-200"
+              >
+                <SparklesIcon className="w-6 h-6 text-amber-600" />
+                <span className="font-semibold text-amber-700">AI Insight</span>
               </button>
             </div>
           </div>
