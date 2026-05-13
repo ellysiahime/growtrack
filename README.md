@@ -6,6 +6,14 @@ Originally developed for private family use, it serves as a centralized academic
 
 ---
 
+## Screenshots
+
+<img src="./screenshots/growtrack_insight1.JPG" width="900" />
+<img src="./screenshots/growtrack_insight2.JPG" width="900" />
+<img src="./screenshots/growtrack_dashboard.JPG" width="900" />
+
+---
+
 ## 🧰 Built With
 
 - ⚡️ [Next.js](https://nextjs.org/) – React framework for full-stack web apps
@@ -18,7 +26,7 @@ Originally developed for private family use, it serves as a centralized academic
 
 ![Next.js](https://img.shields.io/badge/Next.js-000?logo=nextdotjs&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)
-![OpenAI API](https://shields.io/badge/OpenAI-412991?style=flat&logo=openai&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-AI-green)
 ![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-38B2AC?logo=tailwind-css&logoColor=white)
 ![Recharts](https://img.shields.io/badge/Recharts-888?logo=chart&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)
@@ -75,20 +83,5 @@ Originally developed for private family use, it serves as a centralized academic
 ## 🌐 Live Demo
 
 View with Read-only access 👉 [https://growtrack-kappa.vercel.app](https://growtrack-kappa.vercel.app)
-
----
-
-## 🔭 Future Roadmap (Phase 2)
-
-- 📝 Diary or daily log for notes and reflections  
-- 💰 Allowance tracker and expense log
-- 📋 Printable reports or export to PDF
-- 📅 Event reminders for non-academic activities  
-
----
-
-## 🙌 Author Note
-
-GrowTrack is not a commercial product or SaaS platform—it's a **custom-built private tool** tailored to support my child’s academic development. If you're a parent, guardian, or educator interested in building something similar, feel free to take inspiration or fork it as a starting point!
 
 ---
