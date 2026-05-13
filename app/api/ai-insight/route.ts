@@ -127,6 +127,22 @@ function createAuthedSupabase(accessToken: string): SupabaseClient {
   });
 }
 
+function createPublicSupabase(): SupabaseClient {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Supabase environment variables are missing.");
+  }
+
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
+
 function buildSnapshotHash(payload: unknown) {
   return createHash("sha256").update(JSON.stringify(payload)).digest("hex");
 }
@@ -614,19 +630,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const accessToken = extractBearerToken(request);
-    if (!accessToken) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const supabase = createAuthedSupabase(accessToken);
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const supabase = accessToken ? createAuthedSupabase(accessToken) : createPublicSupabase();
 
     const latestInsight = await getMostRecentInsight(supabase);
     if (!latestInsight) {

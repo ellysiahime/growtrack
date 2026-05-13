@@ -70,7 +70,12 @@ export default function InsightsPage() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const syncAuthState = async () => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    setIsAuthenticated(Boolean(sessionData.session?.access_token));
+  };
 
   const fetchLatestInsight = async () => {
     setError("");
@@ -78,22 +83,10 @@ export default function InsightsPage() {
     setLoading(true);
 
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
-
-      if (!accessToken) {
-        setIsAuthenticated(false);
-        setData(null);
-        return;
-      }
-
-      setIsAuthenticated(true);
+      await syncAuthState();
 
       const response = await fetch("/api/ai-insight", {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
       });
 
       const payload = await response.json();
@@ -173,35 +166,20 @@ export default function InsightsPage() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={generateInsight}
-              disabled={generating || !isAuthenticated}
-              className="rounded-full bg-pink-500 px-6 py-3 font-bold text-white shadow transition-all duration-200 hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {generating ? "Generating..." : "Generate AI Insight"}
-            </button>
-          </div>
+          {isAuthenticated ? (
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                onClick={generateInsight}
+                disabled={generating}
+                className="rounded-full bg-pink-500 px-6 py-3 font-bold text-white shadow transition-all duration-200 hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {generating ? "Generating..." : "Generate AI Insight"}
+              </button>
+            </div>
+          ) : null}
         </div>
 
-        {!isAuthenticated && (
-          <div className="rounded-3xl border-2 border-yellow-200 bg-white p-6 shadow-xl">
-            <div className="flex items-start gap-3">
-              <ExclamationTriangleIcon className="mt-1 h-6 w-6 text-yellow-500" />
-              <div>
-                <h2 className="text-xl font-bold text-pink-700">Sign in required</h2>
-                <p className="mt-2 text-gray-700">
-                  AI insight generation uses your academic data under the current Supabase session. Please sign in first, then come back to this page.
-                </p>
-                <Link href="/login" className="mt-4 inline-block font-semibold text-pink-600 hover:text-pink-700">
-                  Go to Login
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {error && isAuthenticated && (
+        {error && (
           <div className="mb-6 rounded-3xl border-2 border-red-300 bg-red-100 p-4 shadow-xl">
             <p className="text-center font-semibold text-red-700">{error}</p>
           </div>
@@ -213,7 +191,7 @@ export default function InsightsPage() {
           </div>
         )}
 
-        {loading && isAuthenticated ? (
+        {loading ? (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
               <div key={index} className={`animate-pulse rounded-3xl bg-white p-6 shadow-xl ${index === 0 ? "lg:col-span-3" : ""}`}>
@@ -226,12 +204,14 @@ export default function InsightsPage() {
           </div>
         ) : null}
 
-        {!loading && (!data || !data.insight) && !error && isAuthenticated && (
+        {!loading && (!data || !data.insight) && !error && (
           <div className="rounded-3xl border-2 border-pink-100 bg-white p-8 text-center shadow-xl">
             <SparklesIcon className="mx-auto h-12 w-12 text-amber-500" />
             <h2 className="mt-4 text-2xl font-bold text-pink-700">AI insight not available yet</h2>
             <p className="mt-2 text-gray-600">
-              No saved AI insight was found. Click the button above when you want to analyze the current academic data.
+              {isAuthenticated
+                ? "No saved AI insight was found. Click the button above when you want to analyze the current academic data."
+                : "No saved AI insight was found yet. Sign in if you want to generate the first one from the current academic data."}
             </p>
             <div className="mx-auto mt-6 max-w-3xl rounded-3xl border border-dashed border-amber-200 bg-amber-50/70 p-6 text-left">
               <h3 className="text-lg font-bold text-amber-700">What will appear here</h3>
